@@ -1,0 +1,10 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: kuard-image-repo-resource
+spec:
+  type: image
+  params:
+    - name: url
+      value: vsurzhyk.azurecr.io/kuard/kuard

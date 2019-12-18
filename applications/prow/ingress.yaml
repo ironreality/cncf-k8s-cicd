@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+  name: ing
+  namespace: default
+spec:
+  rules:
+  - host: prow.d20789c5145d401ea870.francecentral.aksapp.io
+    http:
+      paths:
+      - backend:
+          serviceName: deck
+          servicePort: 80
+        path: /
+      - backend:
+          serviceName: hook
+          servicePort: 8888
+        path: /hook

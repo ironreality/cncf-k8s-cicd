@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: kaniko-run
+spec:
+  serviceAccountName: build-bot
+  taskRef:
+    name: image-build-push-kaniko
+  inputs:
+    resources:
+    - name: source
+      resourceRef:
+        name: kuard-git-repo-resource
+  outputs:
+    resources:
+    - name: image
+      resourceSpec:
+        type: image
+        params:
+        - name: url
+          value: vsurzhyk.azurecr.io/kuard/kuard

@@ -1,0 +1,11 @@
+.terraform
+.terraformrc
+config.tfvars
+terraform.tfstate*
+# terraform.tfvars
+generated
+.envrc
+
+# helm related
+**/charts/**
+**/requirements.lock

@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  plugins.yaml: |
+    plugins:
+      ironreality/kuard:
+      - trigger
+      - size
+      - lgtm
+      - cat
+      - dog
+      - lifecycle
+kind: ConfigMap
+metadata:
+  name: plugins
+  namespace: default

@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: kuard-pipeline-run
+spec:
+  serviceAccountName: build-bot
+  pipelineRef:
+    name: kuard-build-push-pipeline
+  resources:
+  - name: git-source
+    resourceRef:
+      name: kuard-git-repo-resource
+  - name: docker-image
+    resourceRef:
+      name: kuard-image-repo-resource

@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: kuard-build-push-pipeline
+spec:
+  params:
+  resources:
+    - name: git-source
+      type: git
+    - name: docker-image
+      type: image
+
+  tasks:
+    - name: kuard-build-push-image
+      taskRef:
+        name: image-build-push-kaniko
+      resources:
+        inputs:
+        - name: source
+          resource: git-source
+        outputs:
+        - name: image
+          resource: docker-image

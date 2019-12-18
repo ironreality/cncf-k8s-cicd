@@ -1,0 +1,20 @@
+apiVersion: v1
+data:
+  config: |
+    containerRuntimeExecutor: pns
+    artifactRepository:
+      s3:
+        archiveLogs: true
+        bucket: my-bucket
+        endpoint: argo-artifacts-minio.default:9000
+        insecure: true
+        accessKeySecret:
+          name: minio-access-secret
+          key: username
+        secretKeySecret:
+          name: minio-access-secret
+          key: password
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+  namespace: argo

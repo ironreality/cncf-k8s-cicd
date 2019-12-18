@@ -1,0 +1,82 @@
+ apiVersion: argoproj.io/v1alpha1
+ kind: Workflow
+ metadata:
+   generateName: kuard-build-test-
+   namespace: test-pods
+ spec:
+   entrypoint: kuard-build-test
+
+   imagePullSecrets:
+   - name: acr-access-secret
+
+   arguments:
+     parameters:
+     - name: repo
+       value: https://github.com/ironreality/kuard.git
+
+     - name: revision
+       value: master
+
+     - name: imageRegistry
+       value: vsurzhyk.azurecr.io
+
+     - name: imagePath
+       value: kuard/kuard
+
+     - name: imageTag
+       value: latest
+
+     - name: imageRegistryPushAccessSecret
+       value: acr-push-access-secret
+
+   templates:
+   - name: kuard-build-test
+     steps:
+     - - name: build
+         template: build
+
+   - name: build
+     inputs:
+       artifacts:
+       - name: source
+         path: /src
+         git:
+           repo: "{{workflow.parameters.repo}}"
+           revision: "{{workflow.parameters.revision}}"
+           insecureIgnoreHostKey: true
+     container:
+       image: docker:18
+       command: ["/bin/sh", "-c"]
+       args: ["
+         echo ECHO $(date) Waiting until the docker daemon is up... &&
+         until docker ps; do sleep 5; done &&
+         cd /src &&
+         echo ECHO $(date) Building docker image... &&
+         docker build -f Dockerfile -t \
+         {{workflow.parameters.imageRegistry}}/{{workflow.parameters.imagePath}}:{{workflow.parameters.imageTag}} . &&
+         echo ECHO $(date) Pushing the image to Registry... &&
+         docker login --username ${ACR_ACCESS_USER} --password ${ACR_ACCESS_PASSWORD} {{workflow.parameters.imageRegistry}} &&
+         docker push {{workflow.parameters.imageRegistry}}/{{workflow.parameters.imagePath}}:{{workflow.parameters.imageTag}}
+       "]
+       env:
+       - name: DOCKER_HOST
+         value: 127.0.0.1
+
+       - name: ACR_ACCESS_USER
+         valueFrom:
+           secretKeyRef:
+             name: "{{workflow.parameters.imageRegistryPushAccessSecret}}"
+             key: username
+
+       - name: ACR_ACCESS_PASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: "{{workflow.parameters.imageRegistryPushAccessSecret}}"
+             key: password
+
+     sidecars:
+     - name: dind
+       image: docker:18-dind
+       args: ["--mtu=1300"]
+       securityContext:
+         privileged: true
